@@ -1,0 +1,97 @@
+
+{
+	"DT_Branches":
+	{
+		"0":
+			{
+			"Text" : "Do you want to \n (1) Answer a specific question? \n (2) Collect monitoring data \n (3) Input a set of layers \n (B) Back\n",
+			"posAnswers" : ["1","2","3"],
+			"ResponseIndices" : ["1","7","6"],
+			"Function" : ""
+			},
+		"1":
+			{
+			"Text" : "Are you investigating \n (1) Species population size \n (2) Species population locations/habitat? \n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["2","3"],
+			"Function" : ""
+			},
+		"2":
+			{
+			"Text" : "Are you estimating \n (1) Population Size \n (2) Population Density  \n (3) Population Change \n (B) Back\n",
+			"posAnswers" : ["1","2","3"],
+			"ResponseIndices" : ["7","7","7"],
+			"Function" : ""
+			},
+		"3":
+			{
+			"Text" : "Are you estimating \n (1) Occupancy \n (2) Geographic Range  \n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["10","7"],
+			"Function" : "addResponseVar"
+			},
+		"4":
+			{
+			"Text" : "Power analysis can assist with developing the best sampling effort. Power analysis requires an initial estimate of the effect size you are expecting. With remote cameras used for modeling occupancy, the effect may be an estimate of how detections of a species change across a study area or among habitat types. Would you like to do a power analsyis for site design \n (1) Yes  \n (2) No \n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["5","7"],
+			"Function" : ""
+			},
+		"5":
+			{
+			"Text" : "Do you have predictor layers that could be used to simulate your response variable \n (1) Yes  \n (2) No \n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["6","7"],
+			"Function" : ""
+			},
+		"6":
+			{
+			"Text" : " (1) Enter spatial data \n (B) Back\n",
+			"posAnswers" : ["1"],
+			"ResponseIndices" : ["7"],
+			"Function" : "inputSpatial"
+			},
+		"7":
+			{
+			"Text" : " (1) Move to next section.",
+			"posAnswers" : ["1"],
+			"ResponseIndices" : ["-999"],
+			"Function" : ""
+			},
+		"8":
+			{
+			"Text" : " (1) Simulate response \n",
+			"posAnswers" : ["1"],
+			"ResponseIndices" : ["7"],
+			"Function" : "simulateReponse"
+			},
+		"9":
+			{
+			"Text" : " (1) Assess power given an array of cameras \n",
+			"posAnswers" : ["1"],
+			"ResponseIndices" : ["7"],
+			"Function" : "simulateOccupancyData"
+			},
+		"10":
+			{
+			"Text" : "Occupancy can be modeled using detection non-detection data. These data are measured by visiting sampling sites multiple times to build a detection history. Are you estimating the occupancy of \n (1) vertebrates  \n (2) invertebrates\n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["11","7"],
+			"Function" : ""
+			},
+		"11":
+			{
+			"Text" : " Are you estimating the occupancy of \n (1) mammals \n (2) birds \n (3) amphibians \n (B) Back\n",
+			"posAnswers" : ["1","2","3"],
+			"ResponseIndices" : ["12","7","7"],
+			"Function" : ""
+			},
+		"12":
+			{
+			"Text" : "For mammals that range over large areas, detections at sampling sites are defined as 'use' of that site. Use can be measured using \n (1) remote wildlife cameras \n (2) tracks in snow \n (B) Back\n",
+			"posAnswers" : ["1","2"],
+			"ResponseIndices" : ["4","7"],
+			"Function" : ""
+			}
+	}
+}

@@ -1,0 +1,34 @@
+{
+    "SA": "C:/Users/erneilso/OneDrive - NRCan RNCan/Collaborations/ROF/Data/Shapes/ROF_SA.shp",
+    "cellSize": 5000,
+    "outputPathPrefix": "C:/Users/erneilso/OneDrive - NRCan RNCan/Collaborations/RC Steering Committee/MonitoringDecisionTool/Outputs",
+    "layers": [
+        {
+            "Name": "DEM",			
+            "Path": "D:/LocalProjects/Data/Elevation/can3d30_tiff.tif",
+            "Spat": "Raster",
+			"Var": "Use",
+			"Beta": 1,
+            "Type": "Numeric",
+			"ColName": ""
+        },
+		{
+            "Name": "WaterProx",			
+            "Path": "D:/LocalProjects/Data/Water/Waterbody_1M.shp",
+            "Spat": "Vector",
+			"Var": "Use",
+			"Beta": 1,			
+            "Type": "Proximity",
+			"ColName": ""
+        },
+		{
+            "Name": "CEC",			
+            "Path": "D:/LocalProjects/Data/Admin/CEC_CAN_PAD.shp",
+            "Spat": "Vector",
+			"Var": "Use",
+			"Beta": 0.3,			
+            "Type": "Proximity",
+			"ColName": ""
+        }
+    ]
+}
