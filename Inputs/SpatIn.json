@@ -17,7 +17,7 @@
             "Path": "D:/LocalProjects/Data/Water/Waterbody_1M.shp",
             "Spat": "Vector",
 			"Var": "Use",
-			"Beta": 1,			
+			"Beta": 3,			
             "Type": "Proximity",
 			"ColName": ""
         },
@@ -26,7 +26,7 @@
             "Path": "D:/LocalProjects/Data/Admin/CEC_CAN_PAD.shp",
             "Spat": "Vector",
 			"Var": "Use",
-			"Beta": 0.3,			
+			"Beta": 0.5,			
             "Type": "Proximity",
 			"ColName": ""
         }

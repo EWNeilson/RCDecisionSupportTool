@@ -199,6 +199,7 @@ def inputSpatial():
             tempArray = rasterSA(layer["Path"],layer["Name"])    
         
         # correct for hypothesized strengthen
+        tempArray = normScaler(tempArray)
         tempArray = tempArray * layer["Beta"]
 
         # add to dictionaries
@@ -244,8 +245,7 @@ def simulateReponse():
     print("Calculating probability of use across study area")
     varArray = []
     for i in usePredictors:
-        varArray.append(normScaler(usePredictors[i]))
-        #print(usePredictors[i])        
+        varArray.append(usePredictors[i])      
     varArray = np.array(varArray)    
     responseValues["Use"] = normScaler(np.sum(varArray, axis=0))         
 
@@ -275,12 +275,11 @@ def simulateReponse():
     pxN = sum( [1 for line in responseValues["Occupancy"] for x in line if x ==1 ] )
     cellArea = cell_size ** 2
     saAreaKM = (cellArea/1000000) * pxN 
-    print("There are " + str(pxN) + " occupied pixels, amounting to " + str(saAreaKM) + " km, total occupied area.")    
+    print("There are " + str(pxN) + " occupied pixels (" + str(saAreaKM) + " km occupied area). This leads to an instantaneous probability of detection in any cell for one, randomly moving, individual of " + str(1/pxN))
     print('')
     
     ###########################
-    ## SPATIAL PROBABILITY OF DETECTION
-    
+    ## SPATIAL PROBABILITY OF DETECTION    
     ## get the product of occupancy and use to extract the probability of use at occupied sites only
     detArray = []
     for i in responseValues:
@@ -303,16 +302,10 @@ def simulateReponse():
         
     global N
     N = float(dens) * saAreaKM
-    print("The total population is " + str(round(N)))
-    print('')    
-    perPX = 1/pxN
-    print("The randoom, instantaneous probability of detection in any cell for one individual is " + str(perPX))
-    
     global popPX
-    #popPX = N * perPX
     popPX = N/pxN
-    print("The randoom, instantaneous probability of detection in any cell for " + str(N) + " individuals is " + str(popPX))
-    print("Converting use into detection given population size.")
+    
+    print("The total population is " + str(round(N)) + ". This gives an instantaneous probability of detection, in any occupied cell, of any randomly moveing individual, of " + str(popPX))
     tempDet = tempDet * popPX
 
     # scaling by actual detection values
@@ -385,50 +378,48 @@ def simulateOccupancyData():
     ## LOOP OVER STUDY DESIGN SCENARIOS
     
     ## sites
-    # siteScenN = input("Enter the number of site scenarios.")
-    # try:
-        # siteScenN = int(siteScenN)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData()  
-    # maxCam = input("Enter the max number of cameras.")
-    # try:
-        # maxCam = int(maxCam)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData() 
-    # minCam = input("Enter the min number of cameras.")
-    # try:
-        # minCam = int(minCam)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData()
-    # sitesN = range(minCam,maxCam,round(maxCam/siteScenN))
+    siteScenN = input("Enter the number of site scenarios.")
+    try:
+        siteScenN = int(siteScenN)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData()  
+    maxCam = input("Enter the max number of cameras.")
+    try:
+        maxCam = int(maxCam)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData() 
+    minCam = input("Enter the min number of cameras.")
+    try:
+        minCam = int(minCam)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData()
+    sitesN = range(minCam,maxCam,round(maxCam/siteScenN))    
+    #sitesN = range(10,50,round(50/6))
     
-    sitesN = range(10,50,round(50/6))
-    
-    # ## durations
-    # durScenN = input("Enter the number of duration scenarios.")
-    # try:
-        # durScenN = int(durScenN)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData()          
-    # maxDur = input("Enter the max duration of deployments (weeks).")
-    # try:
-        # maxDur = int(maxDur)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData()     
-    # minDur = input("Enter the min duration of deployments (weeks).")
-    # try:
-        # minDur = int(minDur)
-    # except:
-        # print("Enter a number.")
-        # simulateOccupancyData()      
-    # dursN = range(minDur,maxDur,round(maxDur/durScenN))
-    
-    dursN = range(5,20,round(20/4))
+    ## durations
+    durScenN = input("Enter the number of duration scenarios.")
+    try:
+        durScenN = int(durScenN)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData()          
+    maxDur = input("Enter the max duration of deployments (weeks).")
+    try:
+        maxDur = int(maxDur)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData()     
+    minDur = input("Enter the min duration of deployments (weeks).")
+    try:
+        minDur = int(minDur)
+    except:
+        print("Enter a number.")
+        simulateOccupancyData()      
+    dursN = range(minDur,maxDur,round(maxDur/durScenN))    
+    #dursN = range(5,20,round(20/4))
 
     
     # camConfig = input("Enter the configuration of cameras \n (1) Systematic\n (2) Random\n (3) Stratigied Random \n")    
@@ -578,7 +569,6 @@ def simulateOccupancyData():
                 ## export 
                 dh = pd.DataFrame(DetectionHistory)
                 dh.to_csv(outputPathPrefix + '/DetectionHistories/' + ScenName + "/" + str(simn + 1 ) + '_dh.csv', index=False)  
-                
 
 def readQuestion(dat, strIndex):
     
