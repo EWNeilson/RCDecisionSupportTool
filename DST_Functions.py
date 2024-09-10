@@ -241,55 +241,54 @@ def simulateReponse():
     responseValues = {}     
    
     ###########################
-    ## PROBABILITY OF USE AS PRODUCT OF INPUT LAYERS (for now)
-    print("Calculating probability of use across study area")
+    ## PROBABILITY OF USE AS PRODUCT OF INPUT LAYERS (for now)    
     varArray = []
     for i in usePredictors:
         varArray.append(usePredictors[i])      
     varArray = np.array(varArray)    
-    responseValues["Use"] = normScaler(np.sum(varArray, axis=0))         
+    responseValues["Use"] = normScaler(np.sum(varArray, axis=0))
+    print("Used the inputted rasters to simulate the spatial probability of use across study area")
+    
+    plt.close()
+    pltDat = responseValues["Use"]
+    plt.title("Probability of Use " + str(np.amin(responseValues["Use"])) + "_" + str(np.amax(responseValues["Use"])))
+    plt.imshow(pltDat)
+    plt.show()    
 
     ###########################
     ## CONVERT TO OCCUPANCY
-    global trueOcc
-    print('')
-    trueOcc = input("What is true the true probability of occupancy (number between 0 and 1)?")
-    
     ## I want the true occupancy to translate into a proportion of the landscape occupied so the prob of use, which is a function
     ## of covariates, needs to be discretized use trueOcc. So, if trueOcc is 0.2, the top twenty percent of prob use values are occupied.
+    global trueOcc
+    print('')
+    trueOcc = input("Converting use into occupancy. What is true the true proportion of the area that is occupied (number between 0 and 1)?") 
     try:
         trueOcc = float(trueOcc)
         #print("The true occupancy is " + str(trueOcc))
         occThreshold = np.quantile(responseValues["Use"], 1 - trueOcc)
-        print("The probability cutoff is " + str(occThreshold))
-        
     except:
         print("Enter a number.")
-        simulateReponse()       
-    print('')
-    
-    print("Converting use into occupancy.")    
-    print('')
+        simulateReponse()
+
     responseValues["Occupancy"] = np.zeros(shape=responseValues["Use"].shape)
     responseValues["Occupancy"][responseValues["Use"] > occThreshold] = 1     
     pxN = sum( [1 for line in responseValues["Occupancy"] for x in line if x ==1 ] )
     cellArea = cell_size ** 2
-    saAreaKM = (cellArea/1000000) * pxN 
-    print("There are " + str(pxN) + " occupied pixels (" + str(saAreaKM) + " km occupied area). This leads to an instantaneous probability of detection in any cell for one, randomly moving, individual of " + str(1/pxN))
+    saAreaKM = (cellArea/1000000) * pxN
     print('')
+    print("The threshold for predicting occupancy given the probability of use " + str(round(occThreshold,2)) + ". There are " + str(pxN) + " occupied pixels (" + str(saAreaKM) + " km occupied area). This leads to an instantaneous probability of detection in any cell for one, randomly moving, individual of " + str(round(1/pxN,4)))
     
+    plt.close()
+    pltDat = responseValues["Occupancy"]
+    plt.title("Simulated Pixel Occupancy")
+    plt.imshow(pltDat)
+    plt.show()    
+ 
     ###########################
-    ## SPATIAL PROBABILITY OF DETECTION    
-    ## get the product of occupancy and use to extract the probability of use at occupied sites only
-    detArray = []
-    for i in responseValues:
-        detArray.append(responseValues[i])    
-    detArray = np.array(detArray)
-    tempDet = normScaler(np.prod(detArray, axis=0))    
-    
-    ## per pixel detections given population size
-    ##dens = input("What is true density of animals (real number per km2)?")    
-    spPop = input("Is the species (1) common , (2) rare, (3) very-rare?")
+    ## SPATIAL PROBABILITY OF USE FOR A POPULATION 
+    ##dens = input("What is true density of animals (real number per km2)?") 
+    print('')    
+    spPop = input("Simulate a population within the occupied cells using a population density. Is the species (1) common , (2) rare, (3) very-rare?")
     if spPop == str(1):
         dens = 0.05
     elif spPop == str(2):
@@ -305,8 +304,18 @@ def simulateReponse():
     global popPX
     popPX = N/pxN
     
-    print("The total population is " + str(round(N)) + ". This gives an instantaneous probability of detection, in any occupied cell, of any randomly moveing individual, of " + str(popPX))
-    tempDet = tempDet * popPX
+    print('') 
+    print("With a density of " + str(dens) + " individuals per pixel across all occupied pixels, the total population is " + str(round(N,2)) + ". This gives an instantaneous probability of use of any occupied cell, of any randomly moving individual, of " + str(round(popPX,4)))
+    
+    ###########################
+    ## SPATIAL PROBABILITY OF DETECTION    
+    ## get the product of occupancy and use to extract the probability of use at occupied sites only
+    detArray = []
+    for i in responseValues:
+        detArray.append(responseValues[i])    
+    detArray = np.array(detArray)
+    spatDet = normScaler(np.prod(detArray, axis=0))   
+    spatDet = spatDet * popPX
 
     # scaling by actual detection values
     if len(detectionPredictors) != 0:    
@@ -314,27 +323,36 @@ def simulateReponse():
         for i in detectionPredictors:
             detArray.append(normScaler(detectionPredictors[i]))      
         detArray = np.array(detArray)
-        tempDet1 = normScaler(np.sum(detArray, axis=0)) 
-        tempDet1 = tempDet1 * tempDet    
+        spatDet1 = normScaler(np.sum(detArray, axis=0)) 
+        spatDet1 = spatDet1 * spatDet    
     else:
-        tempDet1 = tempDet
+        spatDet1 = spatDet
 
     global meanDetection
-    meanDetection = np.mean(tempDet1)
-    responseValues["Detection"] = tempDet1       
+    meanDetection = np.mean(spatDet1)
+    responseValues["Detection"] = spatDet1  
+
+    print('')   
+    print("Given the spatial variation in probability of use for the population and variation in detection at each site, the mean instantaneous probability of detection across occupied cells, for any randomly moveing individual, is " + str(round(meanDetection,4)))    
     
-    ###########################
-    ##  PLOTTING
-    print('')
-    print("Finished calculing response vars:", list(responseValues.keys()))
-    print('')
-    print("RESPONSE PREDICTORS")
-    for i in responseValues:
-        plt.close()
-        pltDat = responseValues[i]
-        plt.title(i + str(np.amin(pltDat)) + "_" + str(np.amax(pltDat)))
-        plt.imshow(pltDat)
-        plt.show()    
+    plt.close()
+    pltDat = responseValues["Detection"]
+    plt.title("Simulated Pixel Detectability " + str(np.amin(responseValues["Detection"])) + "_" + str(np.amax(responseValues["Detection"])))
+    plt.imshow(pltDat)
+    plt.show()  
+    
+    # ###########################
+    # ##  PLOTTING
+    # #print('')
+    # #print("Finished calculating response vars:", list(responseValues.keys()))
+    # print('')
+    # print("RESPONSE PREDICTORS")
+    # for i in responseValues:
+        # plt.close()
+        # pltDat = responseValues[i]
+        # plt.title(i + str(np.amin(pltDat)) + "_" + str(np.amax(pltDat)))
+        # plt.imshow(pltDat)
+        # plt.show()    
 
     ###########################
     ## USE RASTER
